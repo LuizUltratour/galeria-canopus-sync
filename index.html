@@ -85,17 +85,21 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       padding: 6px 14px;
-      border: 1.5px solid rgba(0,0,0,0.18);
-      background: transparent;
-      color: rgba(0,0,0,0.42);
+      border: 1.5px solid #510D01;
+      background: #510D01;
+      color: #E0C7B2;
       cursor: pointer;
       border-radius: 2px;
       white-space: nowrap;
       flex-shrink: 0;
       transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
-    .f-btn:hover { border-color: var(--dark); color: var(--dark); }
-    .f-btn.active { background: var(--primary); border-color: var(--primary); color: #F0EEE5; }
+    .f-btn:hover { border-color: #510D01; color: #E0C7B2; }
+    .f-btn.active {
+      background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), #510D01;
+      border-color: #510D01;
+      color: #E0C7B2;
+    }
 
     /* ── CAROUSEL ─────────────────────────────────────────── */
     #carousel-outer {
