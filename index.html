@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeria · D.Pulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:    #5C6B92;
+      --dark:       #000000;
+      --bg:         #FFF5F3;
+      --font-sans:  'Inter', system-ui, sans-serif;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --ease:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: var(--font-sans);
+    }
+
+    /* ── APP ─────────────────────────────────────────────── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── HEADER + FILTERS (same row) ────────────────────── */
+    #g-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    #btn-close {
+      width: 32px;
+      height: 32px;
+      border: 1.5px solid rgba(0,0,0,0.25);
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dark);
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    #btn-close:hover { background: var(--dark); border-color: var(--dark); color: var(--bg); }
+    #btn-close svg { pointer-events: none; }
+
+    /* ── FILTERS ─────────────────────────────────────────── */
+    #g-filters {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #g-filters::-webkit-scrollbar { display: none; }
+
+    .filter-sep {
+      width: 1px;
+      height: 16px;
+      background: rgba(0,0,0,0.15);
+      margin: 0 6px;
+      flex-shrink: 0;
+    }
+
+    .f-btn {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border: 1.5px solid rgba(0,0,0,0.18);
+      background: transparent;
+      color: rgba(0,0,0,0.42);
+      cursor: pointer;
+      border-radius: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .f-btn:hover { border-color: var(--dark); color: var(--dark); }
+    .f-btn.active { background: var(--primary); border-color: var(--primary); color: #F0EEE5; }
+
+    /* ── CAROUSEL ─────────────────────────────────────────── */
+    #carousel-outer {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    #carousel-viewport {
+      position: absolute;
+      inset: 0 0 28px 0; /* 28px gap at bottom showing bg color */
+      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+    }
+
+    #carousel-track {
+      display: flex;
+      align-items: stretch;
+      height: 100%;
+      will-change: transform;
+      /* transition injected by JS */
+    }
+
+    /* ── SLIDE ─────────────────────────────────────────────── */
+    .slide {
+      width: 70vw;
+      height: 100%;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      /* dim & desaturate non-active slides */
+      filter: brightness(0.4) saturate(0.7);
+      opacity: 0.85;
+      transition:
+        filter  0.52s var(--ease),
+        opacity 0.52s var(--ease);
+    }
+
+    .slide.active {
+      filter: brightness(1) saturate(1);
+      opacity: 1;
+      cursor: zoom-in;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* ── OVERLAY — visible only on active slide ─────────────── */
+    .slide-overlay {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.42s var(--ease);
+    }
+
+    .slide.active .slide-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Bottom gradient for readability */
+    .slide-overlay::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 52%;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.62) 0%,
+        rgba(0,0,0,0.18) 55%,
+        transparent 100%
+      );
+      pointer-events: none;
+    }
+
+    /* Image title — bottom left */
+    .slide-label {
+      position: absolute;
+      bottom: 28px;
+      left: 28px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.65);
+      z-index: 2;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Navigation arrows — bottom right */
+    .slide-nav {
+      position: absolute;
+      bottom: 22px;
+      right: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .slide-nav button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.88;
+      transform: translateY(0);
+      transition:
+        opacity  0.22s ease,
+        transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .slide-nav button:hover:not(:disabled) {
+      opacity: 1;
+      transform: translateY(-5px);
+    }
+    .slide-nav button:disabled {
+      opacity: 0.22;
+      cursor: default;
+    }
+    .slide-nav button svg { pointer-events: none; display: block; }
+
+    /* Expand / zoom icon — top right corner */
+    .zoom-btn {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: rgba(0,0,0,0.32);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.72;
+      transition: opacity 0.18s, background 0.18s;
+      z-index: 2;
+    }
+    .zoom-btn:hover { opacity: 1; background: rgba(0,0,0,0.55); }
+    .zoom-btn svg { pointer-events: none; display: block; }
+
+    /* ── LIGHTBOX ─────────────────────────────────────────── */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.93);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #lb-bg {
+      position: absolute;
+      inset: 0;
+      cursor: zoom-out;
+    }
+
+    #lb-img-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 94vw;
+      max-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #lb-img {
+      max-width: 94vw;
+      max-height: 90vh;
+      object-fit: contain;
+      display: block;
+      transform-origin: center center;
+      transition: transform 0.22s ease;
+      cursor: zoom-in;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    #lb-img.zoomed { cursor: zoom-out; }
+
+    #lb-close {
+      position: fixed;
+      top: 18px;
+      right: 22px;
+      width: 34px;
+      height: 34px;
+      border: 1.5px solid rgba(255,255,255,0.38);
+      background: transparent;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      z-index: 2;
+    }
+    #lb-close:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.8); }
+    #lb-close svg { pointer-events: none; }
+
+    #lb-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.38);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      pointer-events: none;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER + FILTERS in one row -->
+  <header id="g-header">
+    <nav id="g-filters"></nav>
+    <button id="btn-close" title="Fechar">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <line x1="1" y1="1" x2="10" y2="10"/>
+        <line x1="10" y1="1" x2="1" y2="11"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- CAROUSEL -->
+  <div id="carousel-outer">
+    <div id="carousel-viewport">
+      <div id="carousel-track"></div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox">
+    <div id="lb-bg"></div>
+    <div id="lb-img-wrap">
+      <img id="lb-img" alt="">
+    </div>
+    <button id="lb-close" title="Fechar">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <line x1="1" y1="1" x2="10" y2="10"/>
+        <line x1="10" y1="1" x2="1" y2="11"/>
+      </svg>
+    </button>
+    <div id="lb-hint">Scroll para zoom &middot; clique para fechar</div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════════
+var SLIDE_VW = 70; // each slide: 70% of viewport width; 15% peek each side
+
+var IMAGES = [
+  // ── FACHADA ──────────────────────────────────────────────────
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-34.png',  title: 'Fachada — Entrada' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-36.png',  title: 'Fachada — Vista Noturna' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-37.png',  title: 'Fachada — Entardecer' },
+
+  // ── ÁREAS COMUNS ─────────────────────────────────────────────
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3.png',    title: 'Lounge' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-2.png',  title: 'Coworking' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-4.png',  title: 'Espaço Gourmet' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-6.png',  title: 'Jardim' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-8.png',  title: 'Mini Market' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-9.png',  title: 'Sala de Delivery' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-11.png', title: 'Academia' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-13.png', title: 'Pet Place — Área Externa' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-15.png', title: 'Pet Place — Banho e Tosa' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-17.png', title: 'Lavanderia' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-19.png', title: 'Bike Wash' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-21.png', title: 'Piscina — Cabanas' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-23.png', title: 'Rooftop — Bar' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-25.png', title: 'Rooftop — Gourmet' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-27.png', title: 'Sauna' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-29.png', title: 'Spa — Sala de Massagem' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-33.png', title: 'Rooftop — Lounge e Fire Pit' },
+
+  // ── APARTAMENTOS ───────────────────────────────────────────────
+  { cat: 'apartamentos', src: 'assets/Imagens/Apartamentos/C324-IMG-LO-0002-ACO-FCH-00-R06 3-31.png', title: 'Studio Decorado — Living' },
+  { cat: 'apartamentos', src: 'assets/Imagens/Apartamentos/C324-IMG-LO-0002-ACO-FCH-00-R06 3-32.png', title: 'Studio Decorado — Quarto' },
+
+  // ── PLANTAS ──────────────────────────────────────────────────
+  { cat: 'plantas',      src: 'assets/Plantas/planta 1 1.png', title: 'Planta — Studio' },
+  { cat: 'plantas',      src: 'assets/Plantas/planta 2 1.png', title: 'Planta — Studio com Varanda' },
+  { cat: 'plantas',      src: 'assets/Plantas/planta 3 1.png', title: 'Planta — 2 Dormitórios com Terraço' },
+];
+
+var CATS = {
+  fachada:        { label: 'Fachada',      group: 'perspectivas' },
+  'areas-comuns': { label: 'Áreas Comuns', group: 'perspectivas' },
+  apartamentos:   { label: 'Apartamentos', group: 'perspectivas' },
+  plantas:        { label: 'Plantas',      group: 'plantas' },
+};
+
+// ════════════════════════════════════════════════════════════════
+// MODE  (?mode=imagens | ?mode=plantas | ?mode=all)
+// ════════════════════════════════════════════════════════════════
+var MODE = (function () {
+  try {
+    var m = new URLSearchParams(location.search).get('mode') || 'all';
+    return ['all', 'imagens', 'plantas'].includes(m) ? m : 'all';
+  } catch (_) { return 'all'; }
+}());
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+var activeCat   = (MODE === 'plantas') ? 'plantas' : 'fachada';
+var currentIdx  = 0;
+var filtered    = [];
+var busy        = false;
+var lbIsOpen    = false;
+var lbScale     = 1;
+
+// ════════════════════════════════════════════════════════════════
+// DOM
+// ════════════════════════════════════════════════════════════════
+var elFilters   = document.getElementById('g-filters');
+var elTrack     = document.getElementById('carousel-track');
+var lightbox    = document.getElementById('lightbox');
+var lbImg       = document.getElementById('lb-img');
+var lbBg        = document.getElementById('lb-bg');
+var lbCloseBtn  = document.getElementById('lb-close');
+
+// ════════════════════════════════════════════════════════════════
+// SVG CONSTANTS
+// ════════════════════════════════════════════════════════════════
+var SVG_PREV =
+  '<svg width="38" height="14" viewBox="0 0 38 14" fill="none"' +
+  ' stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<line x1="38" y1="7" x2="1" y2="7"/>' +
+  '<polyline points="8,1 1,7 8,13"/></svg>';
+
+var SVG_NEXT =
+  '<svg width="38" height="14" viewBox="0 0 38 14" fill="none"' +
+  ' stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<line x1="0" y1="7" x2="37" y2="7"/>' +
+  '<polyline points="30,1 37,7 30,13"/></svg>';
+
+var SVG_EXPAND =
+  '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"' +
+  ' stroke="white" stroke-width="1.5" stroke-linecap="round">' +
+  '<polyline points="1,4.5 1,1 4.5,1"/>' +
+  '<polyline points="8.5,1 12,1 12,4.5"/>' +
+  '<polyline points="12,8.5 12,12 8.5,12"/>' +
+  '<polyline points="4.5,12 1,12 1,8.5"/></svg>';
+
+// ════════════════════════════════════════════════════════════════
+// FILTERS
+// ════════════════════════════════════════════════════════════════
+function visibleCats() {
+  if (MODE === 'imagens') return ['fachada', 'areas-comuns', 'apartamentos'];
+  if (MODE === 'plantas') return ['plantas'];
+  return ['fachada', 'areas-comuns', 'apartamentos', 'plantas'];
+}
+
+function renderFilters() {
+  elFilters.innerHTML = '';
+  var cats = visibleCats();
+  var prevGroup = null;
+
+  cats.forEach(function (catId) {
+    var meta = CATS[catId];
+    if (prevGroup !== null && meta.group !== prevGroup) {
+      var sep = document.createElement('div');
+      sep.className = 'filter-sep';
+      elFilters.appendChild(sep);
+    }
+    prevGroup = meta.group;
+
+    var btn = document.createElement('button');
+    btn.className = 'f-btn' + (catId === activeCat ? ' active' : '');
+    btn.textContent = meta.label;
+    btn.addEventListener('click', function () {
+      if (catId === activeCat) return;
+      activeCat  = catId;
+      currentIdx = 0;
+      applyFilter();
+    });
+    elFilters.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// CAROUSEL — BUILD
+// ════════════════════════════════════════════════════════════════
+function applyFilter() {
+  filtered = IMAGES.filter(function (img) { return img.cat === activeCat; });
+  renderFilters();
+  buildCarousel();
+}
+
+function buildCarousel() {
+  elTrack.innerHTML = '';
+  elTrack.style.transition = 'none';
+  elTrack.style.transform  = computeOffset();
+
+  filtered.forEach(function (img, i) {
+    elTrack.appendChild(makeSlide(img, i));
+  });
+
+  // Re-enable track transition after paint
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      elTrack.style.transition = '';
+    });
+  });
+}
+
+function makeSlide(img, i) {
+  var slide = document.createElement('div');
+  slide.className = 'slide' + (i === currentIdx ? ' active' : '');
+  slide.dataset.idx = String(i);
+
+  // ── Image ──────────────────────────────────────────────────
+  var image = document.createElement('img');
+  image.src     = img.src;
+  image.alt     = img.title;
+  image.loading = (i <= 1) ? 'eager' : 'lazy';
+  slide.appendChild(image);
+
+  // ── Overlay ────────────────────────────────────────────────
+  var overlay = document.createElement('div');
+  overlay.className = 'slide-overlay';
+
+  // Title
+  var label = document.createElement('span');
+  label.className   = 'slide-label';
+  label.textContent = img.title;
+  overlay.appendChild(label);
+
+  // Nav arrows
+  var nav = document.createElement('div');
+  nav.className = 'slide-nav';
+
+  var btnPrev = document.createElement('button');
+  btnPrev.type        = 'button';
+  btnPrev.title       = 'Anterior';
+  btnPrev.innerHTML   = SVG_PREV;
+  btnPrev.disabled    = (i === 0);
+  btnPrev.addEventListener('click', function (e) {
+    e.stopPropagation();
+    goTo(currentIdx - 1);
+  });
+  nav.appendChild(btnPrev);
+
+  var btnNext = document.createElement('button');
+  btnNext.type        = 'button';
+  btnNext.title       = 'Próximo';
+  btnNext.innerHTML   = SVG_NEXT;
+  btnNext.disabled    = (i === filtered.length - 1);
+  btnNext.addEventListener('click', function (e) {
+    e.stopPropagation();
+    goTo(currentIdx + 1);
+  });
+  nav.appendChild(btnNext);
+  overlay.appendChild(nav);
+
+  // Expand / zoom
+  var zoomBtn = document.createElement('button');
+  zoomBtn.className = 'zoom-btn';
+  zoomBtn.title     = 'Expandir imagem';
+  zoomBtn.innerHTML = SVG_EXPAND;
+  zoomBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    openLightbox(img.src, img.title);
+  });
+  overlay.appendChild(zoomBtn);
+
+  slide.appendChild(overlay);
+
+  // ── Click: navigate (non-active) or zoom (active) ──────────
+  slide.addEventListener('click', function () {
+    var idx = parseInt(slide.dataset.idx, 10);
+    if (idx !== currentIdx) {
+      goTo(idx);
+    } else {
+      openLightbox(img.src, img.title);
+    }
+  });
+
+  return slide;
+}
+
+// ════════════════════════════════════════════════════════════════
+// CAROUSEL — NAVIGATION
+// ════════════════════════════════════════════════════════════════
+function computeOffset() {
+  var peekVw   = (100 - SLIDE_VW) / 2; // 15 vw
+  var offsetVw = peekVw - (currentIdx * SLIDE_VW);
+  return 'translateX(' + offsetVw + 'vw)';
+}
+
+function goTo(idx) {
+  if (idx < 0 || idx >= filtered.length || busy) return;
+  busy       = true;
+  currentIdx = idx;
+
+  // Animate track
+  elTrack.style.transition =
+    'transform 0.58s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  elTrack.style.transform = computeOffset();
+
+  // Update active class (triggers CSS filter/opacity transitions on each slide)
+  var slides = elTrack.querySelectorAll('.slide');
+  slides.forEach(function (s, i) {
+    s.classList.toggle('active', i === currentIdx);
+  });
+
+  // Preload neighbors
+  preload(idx - 1);
+  preload(idx + 1);
+
+  setTimeout(function () { busy = false; }, 620);
+}
+
+function preload(idx) {
+  if (idx >= 0 && idx < filtered.length) {
+    var img = new Image();
+    img.src = filtered[idx].src;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// LIGHTBOX
+// ════════════════════════════════════════════════════════════════
+function openLightbox(src, title) {
+  lbScale = 1;
+  lbImg.src       = src;
+  lbImg.alt       = title || '';
+  lbImg.style.transform = 'scale(1)';
+  lbImg.classList.remove('zoomed');
+  lightbox.classList.add('open');
+  lbIsOpen = true;
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  lbIsOpen = false;
+  lbScale  = 1;
+}
+
+// Click image: toggle 1x ↔ 2.5x
+lbImg.addEventListener('click', function (e) {
+  e.stopPropagation();
+  lbScale = lbScale > 1 ? 1 : 2.5;
+  lbImg.style.transform = 'scale(' + lbScale + ')';
+  lbImg.classList.toggle('zoomed', lbScale > 1);
+});
+
+// Scroll wheel: continuous zoom
+lbImg.addEventListener('wheel', function (e) {
+  e.preventDefault();
+  var delta = e.deltaY > 0 ? -0.12 : 0.12;
+  lbScale   = Math.min(5, Math.max(1, lbScale + delta));
+  lbImg.style.transform = 'scale(' + lbScale + ')';
+  lbImg.classList.toggle('zoomed', lbScale > 1);
+}, { passive: false });
+
+// Close lightbox on background click
+lbBg.addEventListener('click', closeLightbox);
+lbCloseBtn.addEventListener('click', closeLightbox);
+
+// ════════════════════════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════════════════════════
+document.addEventListener('keydown', function (e) {
+  if (lbIsOpen) {
+    if (e.key === 'Escape') closeLightbox();
+    return;
+  }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(currentIdx - 1);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  goTo(currentIdx + 1);
+  if (e.key === 'Escape') closeGallery();
+});
+
+// ════════════════════════════════════════════════════════════════
+// TOUCH SWIPE
+// ════════════════════════════════════════════════════════════════
+(function () {
+  var vp = document.getElementById('carousel-viewport');
+  var tx = 0, ty = 0;
+  vp.addEventListener('touchstart', function (e) {
+    tx = e.changedTouches[0].clientX;
+    ty = e.changedTouches[0].clientY;
+  }, { passive: true });
+  vp.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 42) {
+      dx < 0 ? goTo(currentIdx + 1) : goTo(currentIdx - 1);
+    }
+  }, { passive: true });
+}());
+
+// ════════════════════════════════════════════════════════════════
+// CLOSE GALLERY
+// ════════════════════════════════════════════════════════════════
+function closeGallery() {
+  try { window.parent.postMessage({ action: 'closeGallery' }, '*'); } catch (_) {}
+}
+document.getElementById('btn-close').addEventListener('click', closeGallery);
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+applyFilter();
+</script>
+</body>
+</html>
