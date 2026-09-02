@@ -22,7 +22,11 @@
     html, body {
       height: 100%;
       overflow: hidden;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: url('assets/bg-sessoes.gif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       font-family: var(--font-sans);
     }
 
@@ -391,28 +395,28 @@ var SLIDE_VW = 70; // each slide: 70% of viewport width; 15% peek each side
 
 var IMAGES = [
   // ── FACHADA ──────────────────────────────────────────────────
-  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-34.png',  title: 'Fachada — Entrada' },
-  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-36.png',  title: 'Fachada — Vista Noturna' },
-  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-37.png',  title: 'Fachada — Entardecer' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-34.png',  title: 'Perspectiva Ilustrativa da Fachada' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-36.png',  title: 'Perspectiva Ilustrativa da Fachada' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-37.png',  title: 'Perspectiva Ilustrativa da Fachada' },
 
   // ── ÁREAS COMUNS ─────────────────────────────────────────────
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3.png',    title: 'Lounge' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-2.png',  title: 'Coworking' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-4.png',  title: 'Espaço Gourmet' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-6.png',  title: 'Jardim' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-8.png',  title: 'Mini Market' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-9.png',  title: 'Sala de Delivery' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-11.png', title: 'Academia' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-13.png', title: 'Pet Place — Área Externa' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-15.png', title: 'Pet Place — Banho e Tosa' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-17.png', title: 'Lavanderia' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-19.png', title: 'Bike Wash' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-21.png', title: 'Piscina — Cabanas' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-23.png', title: 'Rooftop — Bar' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-25.png', title: 'Rooftop — Gourmet' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-27.png', title: 'Sauna' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-29.png', title: 'Spa — Sala de Massagem' },
-  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-33.png', title: 'Rooftop — Lounge e Fire Pit' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3.png',    title: 'Perspectiva Ilustrativa do Lobby' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-2.png',  title: 'Perspectiva Ilustrativa do Coworking' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-4.png',  title: 'Perspectiva Ilustrativa do Salão de Festas Gourmet' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-6.png',  title: 'Perspectiva Ilustrativa do Jardim' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-8.png',  title: 'Perspectiva Ilustrativa do Mini Market' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-9.png',  title: 'Perspectiva Ilustrativa do Delivery' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-11.png', title: 'Perspectiva Ilustrativa do Fitness' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-13.png', title: 'Perspectiva Ilustrativa do Pet Place' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-15.png', title: 'Perspectiva Ilustrativa do Pet Wash' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-17.png', title: 'Perspectiva Ilustrativa da Lavanderia' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-19.png', title: 'Perspectiva Ilustrativa do Bike Station' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-21.png', title: 'Perspectiva Ilustrativa da Piscina' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-23.png', title: 'Perspectiva Ilustrativa do Lounge Bar' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-25.png', title: 'Perspectiva Ilustrativa do Lounge Festas' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-27.png', title: 'Perspectiva Ilustrativa da Sauna Seca' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-29.png', title: 'Perspectiva Ilustrativa da Sala de Massagem' },
+  { cat: 'areas-comuns', src: 'assets/Imagens/Areas Comuns/C324-IMG-LO-0002-ACO-FCH-00-R06 3-33.png', title: 'Perspectiva Ilustrativa da Churrasqueira' },
 
   // ── APARTAMENTOS ───────────────────────────────────────────────
   { cat: 'apartamentos', src: 'assets/Imagens/Apartamentos/C324-IMG-LO-0002-ACO-FCH-00-R06 3-31.png', title: 'Studio Decorado — Living' },
