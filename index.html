@@ -161,6 +161,12 @@
       -webkit-user-drag: none;
     }
 
+    /* Plantas: show the whole floor plan instead of cropping it to fill the slide */
+    .slide-plantas img {
+      object-fit: contain;
+      background: var(--bg);
+    }
+
     /* ── OVERLAY — visible only on active slide ─────────────── */
     .slide-overlay {
       position: absolute;
@@ -395,8 +401,8 @@ var SLIDE_VW = 70; // each slide: 70% of viewport width; 15% peek each side
 
 var IMAGES = [
   // ── FACHADA ──────────────────────────────────────────────────
-  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-34.png',  title: 'Perspectiva Ilustrativa da Fachada' },
-  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-36.png',  title: 'Perspectiva Ilustrativa da Fachada' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-34.png',  title: 'Perspectiva Ilustrativa da Portaria' },
+  { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-36.png',  title: 'Perspectiva Ilustrativa da Fachada Conceitual' },
   { cat: 'fachada',      src: 'assets/Imagens/Fachada/C324-IMG-LO-0002-ACO-FCH-00-R06 3-37.png',  title: 'Perspectiva Ilustrativa da Fachada' },
 
   // ── ÁREAS COMUNS ─────────────────────────────────────────────
@@ -552,7 +558,7 @@ function buildCarousel() {
 
 function makeSlide(img, i) {
   var slide = document.createElement('div');
-  slide.className = 'slide' + (i === currentIdx ? ' active' : '');
+  slide.className = 'slide' + (img.cat === 'plantas' ? ' slide-plantas' : '') + (i === currentIdx ? ' active' : '');
   slide.dataset.idx = String(i);
 
   // ── Image ──────────────────────────────────────────────────
