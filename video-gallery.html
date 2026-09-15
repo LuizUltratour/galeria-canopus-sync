@@ -11,18 +11,20 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #FFFFFF;
-      --dark:         #000000;
-      --border:       rgba(0,0,0,0.10);
-      --border-strong:rgba(0,0,0,0.22);
-      --font-sans:    'Inter', system-ui, sans-serif;
-      --ease:         cubic-bezier(0.4, 0, 0.2, 1);
+      --dark:   #000000;
+      --bg:     #FFF5F3;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --ease:   cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html, body {
       height: 100%;
       overflow: hidden;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: url('assets/bg-sessoes.gif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       color: var(--dark);
       font-family: var(--font-sans);
     }
@@ -32,38 +34,54 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: var(--bg);
     }
 
-    /* ── HEADER ── */
+    /* ── HEADER + TAB (same pattern as the image/plant gallery) ── */
     #vg-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 24px;
-      border-bottom: 1px solid var(--border);
+      padding: 14px 22px;
       flex-shrink: 0;
+      gap: 16px;
     }
 
-    #vg-title {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+    .f-btn {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      opacity: 0.4;
+      padding: 6px 14px;
+      border: 1.5px solid #510D01;
+      background: #510D01;
+      color: #E0C7B2;
+      cursor: default;
+      border-radius: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .f-btn.active {
+      background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), #510D01;
+      border-color: #E0C7B2;
+      color: #E0C7B2;
     }
 
     #btn-close {
-      width: 38px; height: 38px;
-      border: 1px solid var(--border-strong);
+      width: 32px;
+      height: 32px;
+      border: 1.5px solid rgba(0,0,0,0.25);
       background: transparent;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
       border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--dark);
-      transition: background 0.25s var(--ease), color 0.25s var(--ease);
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
-    #btn-close:hover { background: var(--dark); color: var(--bg); border-color: var(--dark); }
+    #btn-close:hover { background: var(--dark); border-color: var(--dark); color: var(--bg); }
+    #btn-close svg { pointer-events: none; }
 
     /* ── PLAYER — fills the entire area below the header ── */
     #vg-player-wrap {
@@ -86,6 +104,7 @@
     /* mobile */
     @media (max-width: 600px) {
       #vg-header { padding: 10px 14px; }
+      .f-btn { font-size: 8px; letter-spacing: 0.08em; padding: 5px 8px; }
     }
   </style>
 </head>
@@ -93,22 +112,35 @@
 
 <div id="vg-root">
   <header id="vg-header">
-    <span id="vg-title">Galeria de Vídeos</span>
+    <nav id="vg-filters">
+      <button class="f-btn active" disabled>Vídeo</button>
+    </nav>
     <button id="btn-close" title="Fechar" aria-label="Fechar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
-        <path d="M18 6L6 18M6 6l12 12"/>
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <line x1="1" y1="1" x2="10" y2="10"/>
+        <line x1="10" y1="1" x2="1" y2="11"/>
       </svg>
     </button>
   </header>
   <div id="vg-player-wrap">
-    <video id="vg-player" src="assets/videos/FILME_CANOPUS_SYNC.mp4" autoplay muted playsinline controls></video>
+    <video id="vg-player" src="assets/videos/FILME_CANOPUS_SYNC.mp4" autoplay playsinline controls></video>
   </div>
 </div>
 
 <script>
+var player = document.getElementById('vg-player');
+
+// Try to autoplay with sound on; only fall back to muted if the
+// browser blocks unmuted autoplay outright.
+player.play().catch(function () {
+  player.muted = true;
+  player.play();
+});
+
 document.getElementById('btn-close').addEventListener('click', closeGallery);
 
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeGallery();
 });
 
